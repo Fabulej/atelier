@@ -1,0 +1,6 @@
+<h4>Cześć <%= @user.email %>!</h4>
+<div>
+  <p>Wypożyczyłeś właśnie <%= link_to @book.title, book_url(@book.id) %>.</p>
+  <p>Termin zwrotu: <%= @book.reservations.first.expires_at %>.</p>
+  <p>Życzymy udanej lektury :)</p>
+</div>

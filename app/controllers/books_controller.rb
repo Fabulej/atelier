@@ -3,13 +3,7 @@ class BooksController < ApplicationController
   before_action :load_book, only: :show
   before_action :new_book, only: :create
 
-  def index
-  end
-
   def new
-  end
-
-  def edit
   end
 
   def create
@@ -21,9 +15,6 @@ class BooksController < ApplicationController
   end
 
   def show
-  end
-
-  def destroy
   end
 
   private
