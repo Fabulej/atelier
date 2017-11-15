@@ -1,0 +1,6 @@
+<h4>Cześć <%= @borrower.email %>!</h4>
+<div>
+  <p>Chcieliśmy Cię powiadomić, że termina oddania książki: <%= link_to @book.title, book_url(@book.id) %>
+    mija <%= @book.reservations.first.expires_at %>.</p>
+  <p>Pozdrawiamy i prosimy o terminowe oddanie pozyji :)</p>
+</div>
