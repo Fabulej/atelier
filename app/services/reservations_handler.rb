@@ -10,6 +10,7 @@ class ReservationsHandler
       book.available_reservation.update_attributes(status: 'TAKEN')
       UserMailer.book_taken_confirmation(user, book).deliver_now
     else
+      reservation = reservations.create(user: user, status: 'TAKEN')
       book.reservations.create(user: user, status: 'TAKEN')
       send_mailers(reservations.create(user: user, status: 'TAKEN'))
       UserMailer.book_taken_confirmation(user, book).deliver_now
@@ -44,7 +45,7 @@ class ReservationsHandler
 
   def send_mailers(res)
     remind_date = res.expires_at - 1.day
-    ::BookNotifierMailer.delay(run_at: remind_date).book_return_remind(res.book)
-    ::BookNotifierMailer.delay(run_at: remind_date).book_reserved_return(res.book)
+    ::BookNotifierMailer.delay(run_at: remind_date).time_to_give_back_the_book(res.book)
+    ::BookNotifierMailer.delay(run_at: remind_date).reserved_book_available(res.book)
   end
 end
