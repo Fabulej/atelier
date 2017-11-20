@@ -13,8 +13,9 @@ class BookNotifierMailer < ApplicationMailer
 
   def reserved_book_available(book)
     @book = book
-    @reservation = book.reservations.where(status: "RESERVED").first
-    @reserver = @reservation.user
-    mail(to: @reserver.email, subject: "#{book.title} wkrótce będzie dostępna")
+    @reservation = book.reservations.find_by(status: "TAKEN")
+    @reserver = book.reservations.find_by(status: "RESERVED").try(:user)
+    
+    mail(to: @reserver.email, subject: "Książka #{@book.title} wkrótce dostępna!") if @reserver
   end
 end
