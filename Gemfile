@@ -19,6 +19,7 @@ gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
 gem 'delayed_job_active_record'
 gem 'daemons'
 gem "awesome_print", require:"ap"
+gem 'pry'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
