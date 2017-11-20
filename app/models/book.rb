@@ -3,7 +3,6 @@ class Book < ApplicationRecord
   has_many :borrowers, through: :reservations, source: :user
   belongs_to :category, optional: true
 
-
   # statuses: AVAILABLE, TAKEN, RESERVED, EXPIRED, CANCELED, RETURNED
 
   def category_name
