@@ -20,6 +20,7 @@ gem 'delayed_job_active_record'
 gem 'daemons'
 gem "awesome_print", require:"ap"
 gem 'pry'
+gem 'whenever', :require => false
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
