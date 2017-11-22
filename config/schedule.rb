@@ -18,3 +18,8 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
+
+
+every '0 8 * * *' do
+  rake 'reservation:send_remind_mailers', environment: 'development'
+end
