@@ -21,6 +21,9 @@ gem 'daemons'
 gem "awesome_print", require:"ap"
 gem 'pry'
 gem 'active_hash'
+gem 'whenever', :require => false
+gem 'omniauth-google-oauth2'
+gem 'a9n'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
