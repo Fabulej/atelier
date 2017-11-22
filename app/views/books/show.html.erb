@@ -1,6 +1,7 @@
 <main class="main-content">
   <h2>"<%= @book.title %>"</h2>
   <p class="isbn-nr">isbn: <strong><%= @book.isbn %></strong></p>
+  <%= render partial: 'books/elements/similar_books', locals: {books: @books}  %>
   <% unless @book.reservations.empty? %>
     <%= render partial: 'books/elements/reservations', locals: {reservations: @book.reservations} %>
   <% end %>
