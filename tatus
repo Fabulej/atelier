@@ -1,0 +1,179 @@
+[1mdiff --git a/Gemfile b/Gemfile[m
+[1mindex 86b0fec..92b18d5 100644[m
+[1m--- a/Gemfile[m
+[1m+++ b/Gemfile[m
+[36m@@ -20,6 +20,8 @@[m [mgem 'delayed_job_active_record'[m
+ gem 'daemons'[m
+ gem "awesome_print", require:"ap"[m
+ gem 'pry'[m
+[32m+[m[32mgem 'omniauth-google-oauth2'[m
+[32m+[m[32mgem 'a9n'[m
+ [m
+ group :development, :test do[m
+   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw][m
+[1mdiff --git a/Gemfile.lock b/Gemfile.lock[m
+[1mindex f8cf072..da490f1 100644[m
+[1m--- a/Gemfile.lock[m
+[1m+++ b/Gemfile.lock[m
+[36m@@ -9,6 +9,7 @@[m [mGIT[m
+ GEM[m
+   remote: https://rubygems.org/[m
+   specs:[m
+[32m+[m[32m    a9n (0.5.4)[m
+     actioncable (5.1.2)[m
+       actionpack (= 5.1.2)[m
+       nio4r (~> 2.0)[m
+[36m@@ -92,9 +93,12 @@[m [mGEM[m
+     factory_girl_rails (4.8.0)[m
+       factory_girl (~> 4.8.0)[m
+       railties (>= 3.0.0)[m
+[32m+[m[32m    faraday (0.12.2)[m
+[32m+[m[32m      multipart-post (>= 1.2, < 3)[m
+     ffi (1.9.18)[m
+     globalid (0.4.0)[m
+       activesupport (>= 4.2.0)[m
+[32m+[m[32m    hashie (3.5.6)[m
+     httparty (0.15.6)[m
+       multi_xml (>= 0.5.2)[m
+     i18n (0.8.6)[m
+[36m@@ -105,6 +109,7 @@[m [mGEM[m
+       rails-dom-testing (>= 1, < 3)[m
+       railties (>= 4.2.0)[m
+       thor (>= 0.14, < 2.0)[m
+[32m+[m[32m    jwt (1.5.6)[m
+     listen (3.1.5)[m
+       rb-fsevent (~> 0.9, >= 0.9.4)[m
+       rb-inotify (~> 0.9, >= 0.9.7)[m
+[36m@@ -121,9 +126,27 @@[m [mGEM[m
+     minitest (5.10.3)[m
+     multi_json (1.12.1)[m
+     multi_xml (0.6.0)[m
+[32m+[m[32m    multipart-post (2.0.0)[m
+     nio4r (2.1.0)[m
+     nokogiri (1.8.0)[m
+       mini_portile2 (~> 2.2.0)[m
+[32m+[m[32m    oauth2 (1.4.0)[m
+[32m+[m[32m      faraday (>= 0.8, < 0.13)[m
+[32m+[m[32m      jwt (~> 1.0)[m
+[32m+[m[32m      multi_json (~> 1.3)[m
+[32m+[m[32m      multi_xml (~> 0.5)[m
+[32m+[m[32m      rack (>= 1.2, < 3)[m
+[32m+[m[32m    omniauth (1.7.1)[m
+[32m+[m[32m      hashie (>= 3.4.6, < 3.6.0)[m
+[32m+[m[32m      rack (>= 1.6.2, < 3)[m
+[32m+[m[32m    omniauth-google-oauth2 (0.5.2)[m
+[32m+[m[32m      jwt (~> 1.5)[m
+[32m+[m[32m      multi_json (~> 1.3)[m
+[32m+[m[32m      omniauth (>= 1.1.1)[m
+[32m+[m[32m      omniauth-oauth2 (>= 1.3.1)[m
+[32m+[m[32m    omniauth-oauth2 (1.4.0)[m
+[32m+[m[32m      oauth2 (~> 1.0)[m
+[32m+[m[32m      omniauth (~> 1.2)[m
+     orm_adapter (0.5.0)[m
+     pry (0.10.4)[m
+       coderay (~> 1.1.0)[m
+[36m@@ -235,6 +258,7 @@[m [mPLATFORMS[m
+   ruby[m
+ [m
+ DEPENDENCIES[m
+[32m+[m[32m  a9n[m
+   awesome_print[m
+   byebug[m
+   capybara (~> 2.13)[m
+[36m@@ -248,6 +272,7 @@[m [mDEPENDENCIES[m
+   jbuilder (~> 2.5)[m
+   jquery-rails (~> 4.3, >= 4.3.1)[m
+   listen (>= 3.0.5, < 3.2)[m
+[32m+[m[32m  omniauth-google-oauth2[m
+   pry[m
+   puma (~> 3.7)[m
+   rails (~> 5.1.2)[m
+[1mdiff --git a/app/models/user.rb b/app/models/user.rb[m
+[1mindex 4d523f5..be94c96 100644[m
+[1m--- a/app/models/user.rb[m
+[1m+++ b/app/models/user.rb[m
+[36m@@ -5,4 +5,20 @@[m [mclass User < ApplicationRecord[m
+          :recoverable, :rememberable, :trackable, :validatable[m
+ [m
+   has_many :reservations[m
+[32m+[m
+[32m+[m[32m  devise :omniauthable, omniauth_providers: [:google_oauth2][m
+[32m+[m
+[32m+[m
+[32m+[m[32m  def self.from_omniauth(access_token)[m
+[32m+[m[32m  data = access_token.info[m
+[32m+[m[32m  user = User.where(email: data['email']).first[m
+[32m+[m
+[32m+[m[32m  unless user[m
+[32m+[m[32m    user = User.create([m
+[32m+[m[32m     email: data['email'],[m
+[32m+[m[32m     password: Devise.friendly_token[0,20][m
+[32m+[m[32m    )[m
+[32m+[m[32m  end[m
+[32m+[m[32m  user[m
+[32m+[m[32mend[m
+ end[m
+[1mdiff --git a/app/views/devise/shared/_links.html.erb b/app/views/devise/shared/_links.html.erb[m
+[1mindex e6a3e41..70514d6 100644[m
+[1m--- a/app/views/devise/shared/_links.html.erb[m
+[1m+++ b/app/views/devise/shared/_links.html.erb[m
+[36m@@ -17,9 +17,4 @@[m
+ <%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>[m
+   <%= link_to "Didn't receive unlock instructions?", new_unlock_path(resource_name) %><br />[m
+ <% end -%>[m
+[31m-[m
+[31m-<%- if devise_mapping.omniauthable? %>[m
+[31m-  <%- resource_class.omniauth_providers.each do |provider| %>[m
+[31m-    <%= link_to "Sign in with #{OmniAuth::Utils.camelize(provider)}", omniauth_authorize_path(resource_name, provider) %><br />[m
+[31m-  <% end -%>[m
+[31m-<% end -%>[m
+[32m+[m[32m  <%= link_to "Sign in with Google", user_google_oauth2_omniauth_authorize_path %>[m
+[1mdiff --git a/config/application.rb b/config/application.rb[m
+[1mindex aeb7cec..717355d 100644[m
+[1m--- a/config/application.rb[m
+[1m+++ b/config/application.rb[m
+[36m@@ -5,6 +5,8 @@[m [mrequire 'rails/all'[m
+ # Require the gems listed in Gemfile, including any gems[m
+ # you've limited to :test, :development, or :production.[m
+ Bundler.require(*Rails.groups)[m
+[32m+[m[32mA9n.root = File.expand_path('../..', __FILE__)[m
+[32m+[m[32mA9n.load[m
+ [m
+ module Atelier[m
+   class Application < Rails::Application[m
+[1mdiff --git a/config/initializers/devise.rb b/config/initializers/devise.rb[m
+[1mindex 2f4a240..4303cec 100644[m
+[1m--- a/config/initializers/devise.rb[m
+[1m+++ b/config/initializers/devise.rb[m
+[36m@@ -274,4 +274,6 @@[m [mDevise.setup do |config|[m
+   # When using OmniAuth, Devise cannot automatically set OmniAuth path,[m
+   # so you need to do it manually. For the users scope, it would be:[m
+   # config.omniauth_path_prefix = '/my_engine/users/auth'[m
+[32m+[m
+[32m+[m[32m  config.omniauth :google_oauth2, A9n.client_id, A9n.secret_key, {}[m
+ end[m
+[1mdiff --git a/config/routes.rb b/config/routes.rb[m
+[1mindex 1881e6c..05583fe 100644[m
+[1m--- a/config/routes.rb[m
+[1m+++ b/config/routes.rb[m
+[36m@@ -1,6 +1,6 @@[m
+ Rails.application.routes.draw do[m
+ [m
+[31m-  devise_for :users[m
+[32m+[m[32m  devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }[m
+ [m
+   root to: "books#index"[m
+ [m
+[1mdiff --git a/db/schema.rb b/db/schema.rb[m
+[1mindex 1e855f0..ebab8e5 100644[m
+[1m--- a/db/schema.rb[m
+[1m+++ b/db/schema.rb[m
+[36m@@ -10,7 +10,7 @@[m
+ #[m
+ # It's strongly recommended that you check this file into your version control system.[m
+ [m
+[31m-ActiveRecord::Schema.define(version: 20171115174447) do[m
+[32m+[m[32mActiveRecord::Schema.define(version: 20171122190928) do[m
+ [m
+   create_table "authors", force: :cascade do |t|[m
+     t.string "firstname"[m

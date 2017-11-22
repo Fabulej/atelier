@@ -1,0 +1,3 @@
+defaults:
+  client_id: 'id'
+  secret_key: 'key'
