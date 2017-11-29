@@ -1,0 +1,27 @@
+<div class='x-books-table-container'>
+  <h3>Similar books: </h3>
+    <table>
+      <thead>
+        <tr>
+          <th>title</th>
+          <th>ISBN</th>
+          <th>category</th>
+          <th>action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @book.category.similar_books.each do |book| %>
+          <tr>
+            <td><%= book.title %></td>
+            <td><%= book.isbn %></td>
+            <td><%= book.category_name %></td>
+            <td><%= link_to('show', book_path(book.id)) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <%= link_to new_book_path, class: 'btn' do %>
+      <i class="fa fa-plus-circle"></i>
+      add book
+    <% end %>
+  </div>

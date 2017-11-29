@@ -20,6 +20,7 @@ gem 'delayed_job_active_record'
 gem 'daemons'
 gem "awesome_print", require:"ap"
 gem 'pry'
+gem 'active_hash'
 gem 'whenever', :require => false
 gem 'omniauth-google-oauth2'
 gem 'a9n'
