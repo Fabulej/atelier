@@ -6,16 +6,23 @@ class ReservationsHandler
   def take(book)
     return "Books is not available for reservation" unless book.can_be_taken?(user)
     if book.available_reservation.present?
+      binding.pry
       send_mailers(available_reservation)
       book.available_reservation.update_attributes(status: 'TAKEN')
+      notify_user_calendar(book.available_reservation)
     else
-      send_mailers(book.reservations.create(user: user, status: 'TAKEN'))
+      reservation = book.reservations.create(user: user, status: 'TAKEN')
+      send_mailers(reservation)
+      notify_user_calendar(reservation)
     end
   end
 
   def give_back(book)
     ActiveRecord::Base.transaction do
-      book.reservations.find_by(status: 'TAKEN').update_attributes(status: 'RETURNED')
+      book.reservations.find_by(status: 'TAKEN').tap { |reservation|
+        reservation.update_attributes(status: 'RETURNED')
+        notify_user_calendar(reservation)
+      }
       book.next_in_queue.update_attributes(status: 'AVAILABLE') if next_in_queue(book).present?
     end
   end
@@ -44,5 +51,11 @@ class ReservationsHandler
     ::BookNotifierMailer.delay(run_at: remind_date).time_to_give_back_the_book(res.book)
     ::BookNotifierMailer.delay(run_at: remind_date).reserved_book_available(res.book)
     ::UserMailer.book_taken_confirmation(user, res.book).deliver_now
+  end
+
+  private
+
+  def notify_user_calendar(reservation)
+    UserCalendarNotifier.new(reservation.user).perform(reservation)
   end
 end
